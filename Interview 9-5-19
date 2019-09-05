@@ -1,0 +1,85 @@
+Overall Project
+- Could you give us an overview of the entire project?
+Sensor attached to ceiling inside the garage
+LED connected that blinks – Red – no car Green – car
+3 level garage – not going to touch the roof
+
+3-4 prototype units
+Discrete event simulator – simulate the rest of the garage, some kind of graphical simulation, real time or not?
+
+Don’t know about monitoring cars moving through the garage
+
+Generate the rest of the sensors ~100 or so
+
+Sensor
+1 year on battery – need to measure currents, Dr Shovic has some tools for this
+Maybe multiple types of sensor on the same unit – IR, photocell, sonar, motion
+Detect a car
+LEDs
+Mesh Network – transmits to WLAN gateway located at the Den – Sigfox, LoRa – 2.1 GHz, 833 MHz, 433 MHz
+Processors – use what we like
+Temperature sensor would be cool – not essential
+Networking - main part – each sensor can act at the gateway – need to work it out
+4”x4”x4” size approx.
+Attachable to ceiling – cement or something
+Arduino may be sufficient
+
+Wonderware?
+QT?
+Able to reset everything
+
+
+Goal – minimize people’s time and effort to find parking spot
+App – optional if can be done do it
+
+Gateway – realistic behavior – car enters, time to go to first level, second level
+Tracking entrance and exit
+
+Put a sensor on garage entrance to check when car enters the garage? 5 total
+Display for whether the garage is full.
+
+
+- Title/name? Up to us
+
+- Patent searches. Has this been done? How did they do it? It has, do some research
+
+- Timeline for class? When are our deliverables? The entire system and hardware working for 5 units. We need to come up with milestones, design review. Get through spec phase fast so we can work on hardware and coding faster.
+
+- How often do we get to meet with our customer?
+- End users - who is expected to use the system? 
+- How do they interact with the system? app
+- Do we have a budget for this project? ~$3000 – sensors, gateway, server
+- Which parking garage is this project being done on? How large - number of stalls and levels, is it?
+
+- Have the stalls been selected already, or will we get to visit the garage and pick? We can pick what we want
+
+- Will there be some advertising or advisory saying that monitoring will be going on once the sensors are installed? Research if legal
+ 
+Hardware
+- What base model should we use? esp8266? Good power down modes
+
+- What mesh network requires less power? Bluetooth? Don’t know
+
+- Does the entire garage need to be on a single brain? 
+- Does the brain need to be in the garage? No, do we need bidirectional data link – battery level, synchronized clock, when to have them listen for transmission
+- Deep sleep? Heck yes
+- Need to save any data from previous time of wakefulness? Maybe/maybe not - eeprom
+- How often does each unit need to report? How long does it take on average for a vehicle to enter and exit a stall? Get data. – Go on field trip and find out
+- How large are the units expected to be - Will they need to be inconspicuous?
+- How do we physically secure these units? E.g drilling into the walls, maybe put a black dome to look like a camera
+- Cost per base? Cost per satellite unit? How do we get component purchases approved? 
+- How do we sense the vehicles? Motorcycles and cars and trucks? Accuracy? What is the definition of stall being full? Lasers cost too much power? – we have to work it out ourselves
+ 
+ 
+Software
+- Does the data being sent from the sensors need encryption? Confidentiality, Integrity, Authentication – PKI to prevent people forging the data, hashes, CRC
+Broadcasting for the sensors – how to determine which sensor gets to broadcast – wait for acknowledgement to be broadcasted? Random fallback time for collisions, number seeding, assigning a serial number to base seeding off, secret – private key, system clock, uptime
+Must have Integrity and Authentication
+
+-App – IOS/Android, what is its purpose?
+- Will hardware, software and licensing be provided to produce the apps – IOS – need apple computer hardware for Xcode, apple store dev license, iphone/ipad to test the software.
+ We’ll get it all free
+- the simulation – is this going to be computationally expensive? Want to use a PC for it
+-Are there any regulations that would limit our implementation? Tools, language, hardware, software regulations that exist? Dr Shovic will obtain permission from the city. Do our own research for the rest
+
+
