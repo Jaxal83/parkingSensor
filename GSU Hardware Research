@@ -52,6 +52,7 @@ LoRa
 Must Use 915 MHz modules
 
 Adafruit RFM95W https://www.adafruit.com/product/3072
+Data Sheet https://cdn-shop.adafruit.com/product-files/3179/sx1276_77_78_79.pdf
 Bit larger than a quarter
 Max current of 100 mA during transmit
 Max current of 30 mA during listening
