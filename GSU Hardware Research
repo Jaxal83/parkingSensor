@@ -1,0 +1,58 @@
+Research of various options for hardware for the GSU
+
+*********************************************************************************
+Personal Hardware to use for Testing
+Nikolai
+Arduino Mega x1
+Arduino Uno x2
+Voltage Regulator x3
+
+
+*********************************************************************************
+
+Arduino
+Uno
+Price - $8-10 each on Amazon for clones
+$22 for official version
+
+
+
+
+Nano
+Price -$10-13 for a pack of 3 on Amazon for clones
+$22 for official version
+Will have to solder headers
+No voltage regulator - has to be provided externally for enough current to power LoRa module at max power usage.
+Max current on 3.3V pin is 50mA without regulator.
+
+
+External Power Supply
+Price - $8-15 in packs of 3-9 on Amazon
+Appears to be one dominant module being sold - the black and yellow one under
+different store names, probably the exact same module and same company. - https://www.amazon.com/s?k=arduino+power+supply+module&ref=nb_sb_noss_2
+Reviews on all are mixed with multiple DoAs within a pack.
+
+*****************************************************************************
+Since power usage is a critical requirement, not a fan of using mixed quality
+power supplies. 
+*****************************************************************************
+
+Option - buy our own parts and assemble the supply ourselves
+Tutorial of this with schematics to send to manufacturer
+https://circuitdigest.com/electronic-circuits/diy-breadboard-power-supply-circuit-on-pcb
+PCB is $2
+Going to be much more expensive than buying ready made modules
+
+
+
+
+*****************************************************************************************************************
+LoRa
+
+Must Use 915 MHz modules
+
+Adafruit RFM95W https://www.adafruit.com/product/3072
+Bit larger than a quarter
+Max current of 100 mA during transmit
+Max current of 30 mA during listening
+
