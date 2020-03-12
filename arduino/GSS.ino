@@ -12,6 +12,7 @@
 #include <RTCZero.h>
 
 
+#include "RTClib.h"
 /************************************ LORA RADIO STUFF ***********************/
 #define RFM95_CS 8
 #define RFM95_RST 4
@@ -38,22 +39,32 @@ const byte month = 2;
 const byte year = 20;
 
 /****************************** END OF RTC **********************************/
- 
-// Blinky on receipt
-//#define LED 13
+RTC_DS3231 ds3231;
+
+unsigned const int GSG = 99;
+
 int ID; 
+int occupied = 0;
+
+static boolean ack = false;
 
 void setup() 
 {
+  //Wire.begin();
   
   //spi.setPins(10, 8, 9); // MISO 10, MOSI 8, SCK  9
   pinMode(LED_BUILTIN, OUTPUT);     
   pinMode(RFM95_RST, OUTPUT);
   digitalWrite(RFM95_RST, HIGH);
  
-  while (!Serial);
-  Serial.begin(9600);
+  //while (!Serial);
+  //Serial.begin(9600);
 
+  // Start DS3231 connection
+  if (! ds3231.begin()) {
+    //Serial.println("Couldn't find RTC");
+    while (1);
+  }
   // Get ID of Arduino
 //  UniqueIDdump(Serial);
 //  UniqueID8dump(Serial);
@@ -89,16 +100,16 @@ void setup()
   else {
     ID = 0;
   }
-  Serial.print("First ");
-  Serial.println(first);
-  Serial.print("This LoRa radio ID is ");
-  Serial.println(ID);
-  if (ID == 1){
-    Serial.println("I am the Garage Sensor Master.");
-  }
-  else {
-    Serial.println("I am a Garage Sensor Unit.");
-  }
+//  Serial.print("First ");
+//  Serial.println(first);
+//  Serial.print("This LoRa radio ID is ");
+//  Serial.println(ID);
+//  if (ID == 1){
+//    Serial.println("I am the Garage Sensor Master.");
+//  }
+//  else {
+//    Serial.println("I am a Garage Sensor Unit.");
+//  }
   
 
 
@@ -106,7 +117,7 @@ void setup()
   
   delay(100);
   // LoRa Setup
-  Serial.println("Arduino LoRa RX Test!");
+  //Serial.println("Arduino LoRa RX Test!");
   
   // manual reset
   digitalWrite(RFM95_RST, LOW);
@@ -115,17 +126,17 @@ void setup()
   delay(10);
  
   while (!rf95.init()) {
-    Serial.println("LoRa radio init failed");
+    //Serial.println("LoRa radio init failed");
     while (1);
   }
-  Serial.println("LoRa radio init OK!");
+  //Serial.println("LoRa radio init OK!");
  
   // Defaults after init are 434.0MHz, modulation GFSK_Rb250Fd250, +13dbM
   if (!rf95.setFrequency(RF95_FREQ)) {
-    Serial.println("setFrequency failed");
+    //Serial.println("setFrequency failed");
     while (1);
   }
-  Serial.print("Set Freq to: "); Serial.println(RF95_FREQ);
+  //Serial.print("Set Freq to: "); Serial.println(RF95_FREQ);
  
   // The default transmitter power is 13dBm, using PA_BOOST.
   // If you are using RFM95/96/97/98 modules which uses the PA_BOOST transmitter pin, then 
@@ -140,7 +151,7 @@ void setup()
     rtc.setTime(hours, minutes, seconds); //set time
     rtc.setDate(day, month, year); //set date
   
-    rtc.setAlarmTime(00, 00, 10); //set alarm time to go off in 1 minute
+    rtc.setAlarmTime(00, 00, 20); //set alarm time to go off in 1 minute
     
     //following two lines enable alarm, comment both out if you want to do external interrupt
     rtc.enableAlarm(rtc.MATCH_SS); //set alarm
@@ -152,13 +163,28 @@ void setup()
     //rtc.standbyMode(); //library call
     
    }
+   else {
+    rtc.begin(); //Start RTC library, this is where the clock source is initialized
+
+    rtc.setTime(hours, minutes, seconds); //set time
+    rtc.setDate(day, month, year); //set date
+  
+    rtc.setAlarmTime(00, 00, 30); //set alarm time to go off in 1 minute
+    
+    //following two lines enable alarm, comment both out if you want to do external interrupt
+    rtc.enableAlarm(rtc.MATCH_SS); //set alarm
+    rtc.attachInterrupt(ISR); //creates an interrupt that wakes the SAMD21 which is triggered by a FTC alarm
+   }
 }
  
 void loop()
 {
+  
+  //RtcDateTime now = rtc.GetDateTime();
   // The GSM Program
   if (ID == 1){
-    if (rf95.available())
+    digitalWrite(LED_BUILTIN, HIGH);
+    if (rf95.waitAvailableTimeout(10000))
     {
       // Should be a message for us now   
       uint8_t buf[RH_RF95_MAX_MESSAGE_LEN];
@@ -166,80 +192,109 @@ void loop()
       delay(500);
       if (rf95.recv(buf, &len))
       {
-        digitalWrite(LED_BUILTIN, HIGH);
-        RH_RF95::printBuffer("Received: ", buf, len);
-        Serial.print("Got: ");
-        Serial.println((char*)buf);
-         Serial.print("RSSI: ");
-        Serial.println(rf95.lastRssi(), DEC);
-        
-        // Send a reply
-        uint8_t data[] = "Message Received";
-        rf95.send(data, sizeof(data));
-        rf95.waitPacketSent();
-        Serial.println("Sent a reply");
-        digitalWrite(LED_BUILTIN, LOW);
+        // first character is 1
+        if (buf[0] == 0x31){
+          //digitalWrite(LED_BUILTIN, HIGH);
+          RH_RF95::printBuffer("Received: ", buf, len);
+//          Serial.print("Got: ");
+//          Serial.println((char*)buf);
+//          Serial.print("RSSI: ");
+//          Serial.println(rf95.lastRssi(), DEC);
+          
+          // Send a reply
+          uint8_t data[] = "Message Received";
+          rf95.send(data, sizeof(data));
+          rf95.waitPacketSent();
+          //Serial.println("Sent a reply");
+          //digitalWrite(LED_BUILTIN, LOW);
+          //DateTime now = ds3231.now();
+          //Serial.println(now.unixtime());
+
+          // forward message to the gateway
+          char gatewayMessage[26];
+          itoa (GSG, gatewayMessage, 10);
+          for (int i = 0; i < 26; i++){
+            gatewayMessage[i+2] = buf[i];
+          }
+          //itoa (buf, gatewayMessage+1, 10);
+          rf95.send((uint8_t *)gatewayMessage, 26);
+          rf95.waitPacketSent();
+        }
       }
       else
       {
-        Serial.println("Receive failed");
+        //Serial.println("Receive failed");
       }
     }
-   
+    digitalWrite(LED_BUILTIN, LOW);
+    rtc.standbyMode();
   }
   // END OF GSM PROGRAM
   
    // The GSU Program
     else
     {
-      static int16_t packetnum = 0;  // packet counter, we increment per xmission
-      Serial.println("Sending to rf95_server");
+      digitalWrite(LED_BUILTIN, HIGH);
+      ack = false;
       // Send a message to rf95_server
-      
-      char radiopacket[20] = "Hello World #      ";
-      itoa(ID, radiopacket+13, 10);
-      Serial.print("Sending "); Serial.println(radiopacket);
-      radiopacket[19] = 0;
-      
-      Serial.println("Sending..."); delay(10);
-      rf95.send((uint8_t *)radiopacket, 20);
-     
-      Serial.println("Waiting for packet to complete..."); delay(10);
-      rf95.waitPacketSent();
-      // Now wait for a reply
-      uint8_t buf[RH_RF95_MAX_MESSAGE_LEN];
-      uint8_t len = sizeof(buf);
-     
-      Serial.println("Waiting for reply..."); delay(10);
-      if (rf95.waitAvailableTimeout(5000))
-      { 
-        // Should be a reply message for us now   
-        if (rf95.recv(buf, &len))
-       {
-          Serial.print("Got reply: ");
-          Serial.println((char*)buf);
-          Serial.print("RSSI: ");
-          Serial.println(rf95.lastRssi(), DEC);    
-          digitalWrite(LED_BUILTIN, HIGH);
-          delay(50);
-          digitalWrite(LED_BUILTIN, LOW);
-          delay(50);
-          digitalWrite(LED_BUILTIN, HIGH);
-          delay(50);
-          digitalWrite(LED_BUILTIN, LOW);
+        DateTime now = ds3231.now();
+        
+        char radiopacket[24];
+        itoa(1, radiopacket, 10);
+        itoa(ID, radiopacket+1, 10);
+        itoa(occupied, radiopacket + 2, 10);
+        itoa(now.unixtime(), radiopacket+3, 10);
+        //Serial.print("Sending "); Serial.println(radiopacket);
+        radiopacket[23] = 0;
+      while(!ack){
+        static int16_t packetnum = 0;  // packet counter, we increment per xmission
+        //Serial.println("Sending to rf95_server");
+        
+        
+        
+        //Serial.println("Sending..."); delay(10);
+        rf95.send((uint8_t *)radiopacket, 20);
+       
+        //Serial.println("Waiting for packet to complete..."); delay(10);
+        rf95.waitPacketSent();
+        // Now wait for a reply
+        uint8_t buf[RH_RF95_MAX_MESSAGE_LEN];
+        uint8_t len = sizeof(buf);
+       
+        //Serial.println("Waiting for reply..."); delay(10);
+        if (rf95.waitAvailableTimeout(5000))
+        { 
+          // Should be a reply message for us now   
+          if (rf95.recv(buf, &len))
+         {
+            //Serial.print("Got reply: ");
+            //Serial.println((char*)buf);
+            //Serial.print("RSSI: ");
+            //Serial.println(rf95.lastRssi(), DEC);    
+            digitalWrite(LED_BUILTIN, HIGH);
+            delay(50);
+            digitalWrite(LED_BUILTIN, LOW);
+            delay(50);
+            digitalWrite(LED_BUILTIN, HIGH);
+            delay(50);
+            digitalWrite(LED_BUILTIN, LOW);
+            ack = true;
+          }
+          else
+          { 
+            //Serial.println("Receive failed");
+          }
         }
+      
         else
         {
-          Serial.println("Receive failed");
+          //Serial.println("No reply, is there a listener around?");
         }
-      }
-      else
-      {
-        Serial.println("No reply, is there a listener around?");
       }
       //digitalWrite(LED_BUILTIN, HIGH);
       //delay(500);
       //digitalWrite(LED_BUILTIN, LOW);
+      digitalWrite(LED_BUILTIN, LOW);
       rtc.standbyMode();
       //delay(5000);
     }
@@ -252,10 +307,16 @@ void loop()
 void ISR()
 {
   //while (!Serial);
-  Serial.flush();
+  //Serial.flush();
   digitalWrite(LED_BUILTIN, HIGH);
   uint8_t secs = rtc.getAlarmSeconds();
-  secs = secs+5;
+  if (ID == 1){
+    secs = secs + 30;
+  }
+  else
+  {
+    secs = secs + 10;
+  }
   secs = secs%60;
   //uint8_t mins = rtc.getAlarmMinutes();
   //mins = mins%60;
