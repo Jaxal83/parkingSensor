@@ -25,35 +25,13 @@ This might be good enough depending on how long they stay in sync.
 
 
 /*************************************************************************************************/
-To Do List
-Anything High priority has to be implemented. Medium needs to be as well. 
-Low and below if there's time.
-
-Integrate the DS3231 into the GSS.ino program and use that to wake up the Feather periodically
-instead of the RTC via an interrupt.
-Priority: High
-Complexity: Low
-Units: GSU and GSM
-
-Have the GSM go to sleep and wake up at specific times to listen before going back to sleep.
-Must have the GSU and GSM in sync to do this properly. The worst case scenario for this is
-we don't have the GSM go to sleep at all. Not ideal since power usage on the GSM will be huge.
-Priority: Medium
-Complexity: High
-Units: GSU and GSM
+Implemented List
 
 Have the GSM send the received messages from the GSUs and its own generated ones from the
 sensors to the GSG. This will be done message at a time: the GSM receives a message from the GSU,
 it then immediately forwards it on to the GSG with no waiting.
 Priority: High
 Complexity: Low
-Units: GSM
-
-Improve the sending of messages for the GSM by storing the received messages in a buffer until
-it reaches a size of approx 200 bytes before sending it in one go. This will save power by
-reducing the number of transmissions but we could live without it if I can't get it to work.
-Priority: Low
-Complexity: High
 Units: GSM
 
 Implement addressing capabilities on the units so that only the GSM receives the messages.
@@ -64,12 +42,51 @@ Priority: High
 Complexity: Medium
 Units: GSU and GSM
 
+
+
+/*************************************************************************************************/
+To Do List
+Anything High priority has to be implemented. Medium needs to be as well. 
+Low and below if there's time.
+
+Integrate the DS3231 into the GSS.ino program and use that to wake up the Feather periodically
+instead of the RTC via an interrupt.
+Priority: High
+Complexity: Low
+Units: GSU and GSM
+*****************************
+This is partly implemented. No interrupt from the DS3231 yet.
+******************************
+
+Have the GSM go to sleep and wake up at specific times to listen before going back to sleep.
+Must have the GSU and GSM in sync to do this properly. The worst case scenario for this is
+we don't have the GSM go to sleep at all. Not ideal since power usage on the GSM will be huge.
+Priority: Medium
+Complexity: High
+Units: GSU and GSM
+/***********************************
+This is partly implemented. The timer used is the built in RTC and doesn't sync up with the DS3231 
+since I haven't get interrupts working on the DS3231.
+************************************
+
+
+Improve the sending of messages for the GSM by storing the received messages in a buffer until
+it reaches a size of approx 200 bytes before sending it in one go. This will save power by
+reducing the number of transmissions but we could live without it if I can't get it to work.
+Priority: Low
+Complexity: High
+Units: GSM
+
+
 Implement encryption so that others cannot interfere with messages. We don't have the built in encryption
 module on the Feathers so this will need to use a library of some kind. We can live without it if it
-isn't done in time.
+isn't done in time. 
 Priority: Low
 Complexity: Very High
 Units: GSU, GSM and GSG
+****************************
+Joel will be working on this.
+***************************
 
 Have the GSUs communicate with one another for network statistics purposes. Since we don't need to do
 a proper mesh network this is only if I get everything else done.
@@ -84,3 +101,7 @@ Might use a Feather to simulate the gateway in the meantime.
 Priority: Very High
 Complexity: High
 Units: GSG
+
+*********************************
+Tyrel is working on this. I have created a placeholder gateway for testing.
+*********************************
