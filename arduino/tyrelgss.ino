@@ -233,11 +233,14 @@ void loop()
     DateTime now = ds3231.now();
         
     char radiopacket[26];
-    itoa(GSG, radiopacket, 10);
-    itoa(1, radiopacket+2, 10);
-    itoa(ID, radiopacket+3, 10);
-    itoa(occupied, radiopacket + 4, 10);
-    itoa(now.unixtime(), radiopacket+5, 10);
+    radiopacket[0] = '<';
+    radiopacket[1] = '1';
+    radiopacket[2] = '>';
+    itoa(GSG, radiopacket+3, 10);
+    itoa(1, radiopacket+5, 10);
+    itoa(ID, radiopacket+6, 10);
+    itoa(occupied, radiopacket + 7, 10);
+    itoa(now.unixtime(), radiopacket+8, 10);
     Serial.print("Sending "); Serial.println(radiopacket);
     radiopacket[25] = 0;
     rf95.send((uint8_t *)radiopacket, 26);
