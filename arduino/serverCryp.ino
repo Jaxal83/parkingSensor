@@ -62,7 +62,7 @@
       rf95.setTxPower(23, false);
     }
 
-    int16_t packetnum = 0;
+    int16_t packetnum = 1;
 
     uint8_t radiopacketReply[] = "And hello back to you";
     int replySize = sizeof(radiopacketReply) - 1;
