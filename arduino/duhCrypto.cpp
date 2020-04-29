@@ -23,6 +23,8 @@ duhCrypto::duhCrypto() {
 	for (int i = 0; i < PATTERN_LEN; i++) {
 		pattern[i] = *(pat + i);
 	}
+	message = (uint8_t*)malloc(25 * sizeof(uint8_t));
+	crypMsg = (uint8_t*)malloc(25 * sizeof(uint8_t));
 }
 
 /*crypIt
@@ -31,13 +33,11 @@ This function either encrypts or decrypts the input message.
 void duhCrypto::crypIt(String mode, uint8_t msg[], int size) {
 	messageLen = size; //input message length
 
-	message = (uint8_t*)malloc(messageLen * sizeof(uint8_t));
 	for (int i = 0; i < messageLen; i++) {
 		message[i] = *(msg + i);
 	}
 
 	crypMode = mode; //"encrypt" or "decrypt"
-	crypMsg = (uint8_t*)malloc(messageLen * sizeof(uint8_t));
 
 	int key; //current key to use
 	int character; //current character of input message

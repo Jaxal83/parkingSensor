@@ -1,4 +1,4 @@
-  // Arduino9x_RX
+// Arduino9x_RX
     // -*- mode: C++ -*-
     // Example sketch showing how to create a simple messaging client (receiver)
     // with the RH_RF95 class. RH_RF95 class does not provide for addressing or
@@ -67,11 +67,10 @@
     uint8_t radiopacketReply[] = "And hello back to you";
     int replySize = sizeof(radiopacketReply) - 1;
 
-    duhCrypto inPacket;
-    duhCrypto outPacket;
-
     uint8_t* outMsg;
     int packSize;
+
+    duhCrypto thisPacket;
      
     void loop()
     {
@@ -100,20 +99,20 @@
           Serial.print("RSSI: ");
           Serial.println(rf95.lastRssi(), DEC);
 
-          inPacket.crypIt("decrypt", buf, len);
-          inPacket.printMessage();
-          inPacket.printCrypMsg();
+          thisPacket.crypIt("decrypt", buf, len);
+          thisPacket.printMessage();
+          thisPacket.printCrypMsg();
           delay(10);
           
           // Send a reply
           Serial.print("<<< OUT >>>\n");
 
-          outPacket.crypIt("encrypt", radiopacketReply, replySize);
-          outPacket.printMessage();
-          outPacket.printCrypMsg();
+          thisPacket.crypIt("encrypt", radiopacketReply, replySize);
+          thisPacket.printMessage();
+          thisPacket.printCrypMsg();
 
-          packSize = outPacket.getMessageLen();
-          outMsg = outPacket.getCrypMsg();
+          packSize = thisPacket.getMessageLen();
+          outMsg = thisPacket.getCrypMsg();
           delay(10);
 
           Serial.print("Sending '");
