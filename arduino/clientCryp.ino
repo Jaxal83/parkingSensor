@@ -1,4 +1,4 @@
- // LoRa 9x_TX
+// LoRa 9x_TX
     // -*- mode: C++ -*-
     // Example sketch showing how to create a simple messaging client (transmitter)
     // with the RH_RF95 class. RH_RF95 class does not provide for addressing or
@@ -58,17 +58,18 @@
       rf95.setTxPower(23, false);
     }
      
-    int16_t packetnum = 0;  // packet counter, we increment per xmission
+    int16_t packetnum = 1;  // packet counter, we increment per xmission
 
     char radiopacket[] = "Hello World #      ";
 
-    duhCrypto outPacket;
-
     uint8_t* msg;
     int packSize;
+
+    duhCrypto thisPacket;
      
     void loop()
     {
+      //duhCrypto thisPacket;
       Serial.print("\n<<<<<< packetnum = ");
       Serial.print(packetnum);
       Serial.print(" >>>>>> \n<<< OUT >>>\n");
@@ -82,12 +83,12 @@
         packSize++;
       }
     
-      outPacket.crypIt("encrypt", (uint8_t*) radiopacket, packSize); 
-      outPacket.printMessage();
-      outPacket.printCrypMsg();
+      thisPacket.crypIt("encrypt", (uint8_t*) radiopacket, packSize); 
+      thisPacket.printMessage();
+      thisPacket.printCrypMsg();
 
-      packSize = outPacket.getMessageLen();
-      msg = outPacket.getCrypMsg();
+      packSize = thisPacket.getMessageLen();
+      msg = thisPacket.getCrypMsg();
       delay(10);
       
       Serial.print("Sending '"); 
@@ -115,12 +116,12 @@
         // Should be a reply message for us now   
         if (rf95.recv(buf, &len))
        {
-          outPacket.crypIt("decrypt", buf, len);
-          outPacket.printMessage();
-          outPacket.printCrypMsg();
+          thisPacket.crypIt("decrypt", buf, len);
+          thisPacket.printMessage();
+          thisPacket.printCrypMsg();
 
-          packSize = outPacket.getMessageLen();
-          msg = outPacket.getCrypMsg();
+          packSize = thisPacket.getMessageLen();
+          msg = thisPacket.getCrypMsg();
           delay(10);
         
           Serial.print("Got reply: '");
@@ -131,7 +132,7 @@
           Serial.print(packSize);
           Serial.println(")");
           Serial.print("RSSI: ");
-          Serial.println(rf95.lastRssi(), DEC);    
+          Serial.println(rf95.lastRssi(), DEC);  
         }
         else
         {
