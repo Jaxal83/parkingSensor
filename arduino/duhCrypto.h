@@ -11,28 +11,33 @@
 class duhCrypto {
 
 private:
-	int key1; 
-	int key2; 
+	int key1;
+	int key2;
 
-	int* pattern; 
+	int* pattern;
+	
+	int* id;
+	int idSize;
 
-	uint8_t* message; 
-	int messageLen; 
+	uint8_t* message;
+	int messageLen;
 
-	String crypMode; 
-	uint8_t* crypMsg; 
-	int crypLen; 
+	String crypMode;
+	uint8_t* crypMsg;
+	int crypLen;
 
-public:	
+public:
 	duhCrypto();
-		
-	void crypIt(String mode, uint8_t msg[], int size);
+
+	int crypIt(String mode, uint8_t msg[], int size);
 
 	uint8_t* getCrypMsg();
 
 	uint8_t* getMessage();
 
 	int getMessageLen();
+
+	int getCrypLen();
 
 	void printCrypMsg();
 

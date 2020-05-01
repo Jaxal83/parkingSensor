@@ -62,7 +62,7 @@
       rf95.setTxPower(23, false);
     }
 
-    int16_t packetnum = 1;
+    int16_t packetnum = 0;
 
     uint8_t radiopacketReply[] = "And hello back to you";
     int replySize = sizeof(radiopacketReply) - 1;
@@ -71,6 +71,8 @@
     int packSize;
 
     duhCrypto thisPacket;
+
+    int auth;
      
     void loop()
     {
@@ -99,34 +101,36 @@
           Serial.print("RSSI: ");
           Serial.println(rf95.lastRssi(), DEC);
 
-          thisPacket.crypIt("decrypt", buf, len);
+          auth = thisPacket.crypIt("decrypt", buf, len);
           thisPacket.printMessage();
           thisPacket.printCrypMsg();
           delay(10);
+
+          if(auth == 1) {
+            // Send a reply
+            Serial.print("<<< OUT >>>\n");
+
+            thisPacket.crypIt("encrypt", radiopacketReply, replySize);
+            thisPacket.printMessage();
+            thisPacket.printCrypMsg();
+
+            packSize = thisPacket.getCrypLen();
+            outMsg = thisPacket.getCrypMsg();
+            delay(10);
+
+            Serial.print("Sending '");
+            for(int i = 0; i < packSize; i++) {
+              Serial.print((char)*(outMsg + i));
+            }
+            Serial.print("' (pack size = ");
+            Serial.print(packSize);
+            Serial.println(")");
           
-          // Send a reply
-          Serial.print("<<< OUT >>>\n");
-
-          thisPacket.crypIt("encrypt", radiopacketReply, replySize);
-          thisPacket.printMessage();
-          thisPacket.printCrypMsg();
-
-          packSize = thisPacket.getMessageLen();
-          outMsg = thisPacket.getCrypMsg();
-          delay(10);
-
-          Serial.print("Sending '");
-          for(int i = 0; i < packSize; i++) {
-            Serial.print((char)*(outMsg + i));
+            rf95.send(outMsg, packSize);
+            rf95.waitPacketSent();
+            Serial.println("Sent a reply");
+            digitalWrite(LED, LOW);
           }
-          Serial.print("' (pack size = ");
-          Serial.print(packSize);
-          Serial.println(")");
-          
-          rf95.send(outMsg, packSize);
-          rf95.waitPacketSent();
-          Serial.println("Sent a reply");
-          digitalWrite(LED, LOW);
         }
         else
         {
