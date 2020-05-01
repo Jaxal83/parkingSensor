@@ -66,7 +66,7 @@
     int packSize;
 
     duhCrypto thisPacket;
-     
+    
     void loop()
     {
       //duhCrypto thisPacket;
@@ -74,74 +74,96 @@
       Serial.print(packetnum);
       Serial.print(" >>>>>> \n<<< OUT >>>\n");
       Serial.println("Sending to rf95_server");
-      // Send a message to rf95_server
+      if(packetnum % 2 != 0) {
+        // Send a message to rf95_server
       
-      //char radiopacket[20] = "Hello World #      ";
-      itoa(packetnum++, radiopacket+13, 10);
-      packSize = 0;
-      while(*(radiopacket + packSize) != '\0') {
-        packSize++;
-      }
+        //char radiopacket[20] = "Hello World #      ";
+        itoa(packetnum++, radiopacket+13, 10);
+        packSize = 0;
+        while(*(radiopacket + packSize) != '\0') {
+          packSize++;
+        }
     
-      thisPacket.crypIt("encrypt", (uint8_t*) radiopacket, packSize); 
-      thisPacket.printMessage();
-      thisPacket.printCrypMsg();
+        thisPacket.crypIt("encrypt", (uint8_t*) radiopacket, packSize); 
+        thisPacket.printMessage();
+        thisPacket.printCrypMsg();
 
-      packSize = thisPacket.getMessageLen();
-      msg = thisPacket.getCrypMsg();
-      delay(10);
+        packSize = thisPacket.getCrypLen();
+        msg = thisPacket.getCrypMsg();
+        delay(10);
       
-      Serial.print("Sending '"); 
-      for(int i = 0; i < packSize; i++) {
-        Serial.print((char)*(msg + i));
-      }
-      Serial.print("' (pack size = ");
-      Serial.print(packSize);
-      Serial.println(")");
+        Serial.print("Sending '"); 
+        for(int i = 0; i < packSize; i++) {
+          Serial.print((char)*(msg + i));
+        }
+        Serial.print("' (pack size = ");
+        Serial.print(packSize);
+        Serial.println(")");
       
-      Serial.println("Sending..."); delay(10);
-      rf95.send(msg, packSize);
+        Serial.println("Sending..."); delay(10);
+        rf95.send(msg, packSize);
      
-      Serial.println("Waiting for packet to complete..."); delay(10);
-      rf95.waitPacketSent();
+        Serial.println("Waiting for packet to complete..."); delay(10);
+        rf95.waitPacketSent();
       
-      // Now wait for a reply
-      Serial.print("<<< IN >>>\n");
-      uint8_t buf[RH_RF95_MAX_MESSAGE_LEN];
-      uint8_t len = sizeof(buf);
+        // Now wait for a reply
+        Serial.print("<<< IN >>>\n");
+        uint8_t buf[RH_RF95_MAX_MESSAGE_LEN];
+        uint8_t len = sizeof(buf);
      
-      Serial.println("Waiting for reply..."); delay(10);
-      if (rf95.waitAvailableTimeout(1000))
-      { 
-        // Should be a reply message for us now   
-        if (rf95.recv(buf, &len))
-       {
-          thisPacket.crypIt("decrypt", buf, len);
-          thisPacket.printMessage();
-          thisPacket.printCrypMsg();
+        Serial.println("Waiting for reply..."); delay(10);
+        if (rf95.waitAvailableTimeout(1000))
+        { 
+          // Should be a reply message for us now   
+          if (rf95.recv(buf, &len))
+        {  
+            thisPacket.crypIt("decrypt", buf, len);
+            thisPacket.printMessage();
+            thisPacket.printCrypMsg();
 
-          packSize = thisPacket.getMessageLen();
-          msg = thisPacket.getCrypMsg();
-          delay(10);
+            packSize = thisPacket.getCrypLen();
+            msg = thisPacket.getCrypMsg();
+            delay(10);
         
-          Serial.print("Got reply: '");
-          for(int i = 0; i < packSize; i++) {
-            Serial.print((char)*(msg + i));
+            Serial.print("Got reply: '");
+            for(int i = 0; i < packSize; i++) {
+              Serial.print((char)*(msg + i));
+            }
+            Serial.print("' (pack size = ");
+            Serial.print(packSize);
+            Serial.println(")");
+            Serial.print("RSSI: ");
+            Serial.println(rf95.lastRssi(), DEC);  
           }
-          Serial.print("' (pack size = ");
-          Serial.print(packSize);
-          Serial.println(")");
-          Serial.print("RSSI: ");
-          Serial.println(rf95.lastRssi(), DEC);  
+          else
+          {
+            Serial.println("Receive failed");
+          }
         }
         else
-        {
-          Serial.println("Receive failed");
+        { 
+          Serial.println("No reply, is there a listener around?");
         }
       }
-      else
-      {
-        Serial.println("No reply, is there a listener around?");
+      else {
+        packSize = sizeof(radiopacket) - 1;
+
+        itoa(packetnum++, radiopacket+13, 10);
+        packSize = 0;
+        while(*(radiopacket + packSize) != '\0') {
+          packSize++;
+        }
+        
+        Serial.print("Sending '"); 
+        for(int i = 0; i < packSize; i++) {
+          Serial.print((char)*(radiopacket + i));
+        }
+        Serial.print("' (pack size = ");
+        Serial.print(packSize);
+        Serial.println(")");
+        
+        Serial.println("Sending..."); delay(10);
+        rf95.send((uint8_t*) radiopacket, packSize);
       }
       delay(5000);
     }
