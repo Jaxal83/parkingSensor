@@ -5,7 +5,7 @@ Pins used for each function on the Feather M0 from IDE perspective
 1 - TX for Serial Port
 3 - Interrupt for LoRa
 4 - RST for LoRa
-5 -
+5 - LED
 6 - 
 8 - CS for LoRa SPI
 9 - Analog 7 Unused 
@@ -17,8 +17,8 @@ Pins used for each function on the Feather M0 from IDE perspective
 15 - Analog 1 Unused 
 16 - Analog 2 Unused 
 17 - Analog 3 Unused 
-18 - Analog 4 Unused 
-19 - Analog 5 Unused 
+18 - Analog 4 Ultrasonic Sensor
+19 - Analog 5 Ultrasonic Sensor
 20 - SDA for DS3231 RTC I2C
 21 - SCL for DS3231 RTC I2C
 22 - MISO for LoRa SPI

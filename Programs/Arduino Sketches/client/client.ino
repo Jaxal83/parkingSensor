@@ -1,9 +1,4 @@
-    /*********************************************************************************
-		USE WITH SERVER.INO TO TEST BASIC TRANSMIT AND RECEIVE OF LORA 
-	
-	**********************************************************************************/
-	
-	// LoRa 9x_TX
+    // LoRa 9x_TX
     // -*- mode: C++ -*-
     // Example sketch showing how to create a simple messaging client (transmitter)
     // with the RH_RF95 class. RH_RF95 class does not provide for addressing or
@@ -17,6 +12,11 @@
     #define RFM95_CS 8
     #define RFM95_RST 4
     #define RFM95_INT 3
+    // Use these pins instead if using an Arduino Uno with the LoRa module  
+	//#define RFM95_CS 4
+    //#define RFM95_RST 2
+    //#define RFM95_INT 3
+	
      
     // Change to 434.0 or other frequency, must match RX's freq!
     #define RF95_FREQ 900.0
